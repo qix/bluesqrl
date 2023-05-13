@@ -25,7 +25,12 @@
     "@oclif/core": "^2",
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.4.7",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "sqrl": "^0.6.10",
+    "sqrl-jsonpath": "^0.6.10",
+    "sqrl-load-functions": "^0.6.10",
+    "sqrl-redis-functions": "^0.6.10",
+    "sqrl-text-functions": "^0.6.10"
   },
   "devDependencies": {
     "@oclif/test": "^2.3.17",
