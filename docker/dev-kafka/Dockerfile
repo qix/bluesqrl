@@ -2,7 +2,7 @@ FROM openjdk:8u292-slim-buster
 
 WORKDIR /opt
 
-ARG kafkaversion=3.3.1
+ARG kafkaversion=3.4.0
 ARG scalaversion=2.13
 
 ENV KRAFT_CONTAINER_HOST_NAME=
@@ -19,8 +19,17 @@ RUN wget https://mirrors.ocf.berkeley.edu/apache/kafka/${kafkaversion}/kafka_${s
 WORKDIR /opt/kafka
 
 COPY ./configs/server.properties ./config/kraft
-COPY ./*.sh .
+COPY ./*.sh /opt/kafka/
 
+RUN for cmd in `ls bin | grep ^kafka-`; do \
+      out=${cmd#"kafka-"}; \
+      echo "$out => $cmd"; \
+      ( \
+          echo '#!/bin/bash'; \
+          echo "exec ./bin/$cmd" "--bootstrap-server=localhost:9093" '$@'; \
+      ) > "./$out"; \
+      chmod +x "./$out"; \
+    done
 EXPOSE 9092 9093
 
 ENTRYPOINT [ "./docker-entrypoint.sh" ]

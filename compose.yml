@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   kafka:
-    image: moeenz/docker-kafka-kraft:latest
+    image: us-east4-docker.pkg.dev/josh-personal-201806/docker-dev/dev-kafka
     restart: always
     ports:
       - "9093:9093"
@@ -10,7 +10,7 @@ services:
       - kafka-data:/kafka-logs
     environment:
       - KRAFT_CONTAINER_HOST_NAME=kafka
-      - KRAFT_CREATE_TOPICS=topic-a,topic-b,topic-c
+      - KRAFT_CREATE_TOPICS=inputEvents
       - KRAFT_PARTITIONS_PER_TOPIC=3
 volumes:
   kafka-data:
