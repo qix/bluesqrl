@@ -12,25 +12,8 @@ import { getOpsByType } from '../../bluesky/getOpsByType'
 import { EachMessageHandler, Kafka } from 'kafkajs'
 import { invariant } from '../../util/invariant'
 import { DeferredPromise } from '../../util/DeferredPromise'
+import { Pacer } from '../../util/Pacer'
 
-
-class Pacer {
-
-  private last = 0;
-  constructor(private intervalMs: number) {
-
-
-  }
-
-  test() {
-    const now = Date.now();
-    if (now > this.last + this.intervalMs) {
-      this.last = now;
-      return true;
-    }
-    return false;
-  }
-}
 
 
 async function consumeAll(kafka: Kafka, topic: string, callback: EachMessageHandler) {
