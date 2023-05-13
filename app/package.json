@@ -4,7 +4,7 @@
   "description": "oclif example Hello World CLI",
   "author": "Josh Yudaken @qix",
   "bin": {
-    "bluesqrl": "./bin/run"
+    "app": "./bin/run"
   },
   "homepage": "https://github.com/qix/bluesqrl",
   "license": "MIT",
@@ -19,7 +19,13 @@
   "dependencies": {
     "@oclif/core": "^2",
     "@oclif/plugin-help": "^5",
-    "@oclif/plugin-plugins": "^2.4.7"
+    "@oclif/plugin-plugins": "^2.4.7",
+    "kafka-node": "^5.0.0",
+    "@atproto/did-resolver": "^0.1.0",
+    "@atproto/lexicon": "^0.1.0",
+    "@atproto/repo": "^0.1.0",
+    "@atproto/uri": "^0.0.2",
+    "@atproto/xrpc-server": "^0.2.0"
   },
   "devDependencies": {
     "@oclif/test": "^2.3.17",
@@ -38,8 +44,8 @@
     "typescript": "^4.9.5"
   },
   "oclif": {
-    "bin": "bluesqrl",
-    "dirname": "bluesqrl",
+    "bin": "app",
+    "dirname": "app",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",

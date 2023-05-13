@@ -17,38 +17,38 @@ oclif example Hello World CLI
 <!-- usage -->
 ```sh-session
 $ npm install -g app
-$ bluesqrl COMMAND
+$ app COMMAND
 running command...
-$ bluesqrl (--version)
+$ app (--version)
 app/0.0.0 linux-x64 node-v18.12.1
-$ bluesqrl --help [COMMAND]
+$ app --help [COMMAND]
 USAGE
-  $ bluesqrl COMMAND
+  $ app COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`bluesqrl hello PERSON`](#bluesqrl-hello-person)
-* [`bluesqrl hello world`](#bluesqrl-hello-world)
-* [`bluesqrl help [COMMANDS]`](#bluesqrl-help-commands)
-* [`bluesqrl plugins`](#bluesqrl-plugins)
-* [`bluesqrl plugins:install PLUGIN...`](#bluesqrl-pluginsinstall-plugin)
-* [`bluesqrl plugins:inspect PLUGIN...`](#bluesqrl-pluginsinspect-plugin)
-* [`bluesqrl plugins:install PLUGIN...`](#bluesqrl-pluginsinstall-plugin-1)
-* [`bluesqrl plugins:link PLUGIN`](#bluesqrl-pluginslink-plugin)
-* [`bluesqrl plugins:uninstall PLUGIN...`](#bluesqrl-pluginsuninstall-plugin)
-* [`bluesqrl plugins:uninstall PLUGIN...`](#bluesqrl-pluginsuninstall-plugin-1)
-* [`bluesqrl plugins:uninstall PLUGIN...`](#bluesqrl-pluginsuninstall-plugin-2)
-* [`bluesqrl plugins update`](#bluesqrl-plugins-update)
+* [`app hello PERSON`](#app-hello-person)
+* [`app hello world`](#app-hello-world)
+* [`app help [COMMANDS]`](#app-help-commands)
+* [`app plugins`](#app-plugins)
+* [`app plugins:install PLUGIN...`](#app-pluginsinstall-plugin)
+* [`app plugins:inspect PLUGIN...`](#app-pluginsinspect-plugin)
+* [`app plugins:install PLUGIN...`](#app-pluginsinstall-plugin-1)
+* [`app plugins:link PLUGIN`](#app-pluginslink-plugin)
+* [`app plugins:uninstall PLUGIN...`](#app-pluginsuninstall-plugin)
+* [`app plugins:uninstall PLUGIN...`](#app-pluginsuninstall-plugin-1)
+* [`app plugins:uninstall PLUGIN...`](#app-pluginsuninstall-plugin-2)
+* [`app plugins update`](#app-plugins-update)
 
-## `bluesqrl hello PERSON`
+## `app hello PERSON`
 
 Say hello
 
 ```
 USAGE
-  $ bluesqrl hello PERSON -f <value>
+  $ app hello PERSON -f <value>
 
 ARGUMENTS
   PERSON  Person to say hello to
@@ -66,29 +66,29 @@ EXAMPLES
 
 _See code: [dist/commands/hello/index.ts](https://github.com/qix/bluesqrl/blob/v0.0.0/dist/commands/hello/index.ts)_
 
-## `bluesqrl hello world`
+## `app hello world`
 
 Say hello world
 
 ```
 USAGE
-  $ bluesqrl hello world
+  $ app hello world
 
 DESCRIPTION
   Say hello world
 
 EXAMPLES
-  $ bluesqrl hello world
+  $ app hello world
   hello world! (./src/commands/hello/world.ts)
 ```
 
-## `bluesqrl help [COMMANDS]`
+## `app help [COMMANDS]`
 
-Display help for bluesqrl.
+Display help for app.
 
 ```
 USAGE
-  $ bluesqrl help [COMMANDS] [-n]
+  $ app help [COMMANDS] [-n]
 
 ARGUMENTS
   COMMANDS  Command to show help for.
@@ -97,18 +97,18 @@ FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for bluesqrl.
+  Display help for app.
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
 
-## `bluesqrl plugins`
+## `app plugins`
 
 List installed plugins.
 
 ```
 USAGE
-  $ bluesqrl plugins [--core]
+  $ app plugins [--core]
 
 FLAGS
   --core  Show core plugins.
@@ -117,18 +117,18 @@ DESCRIPTION
   List installed plugins.
 
 EXAMPLES
-  $ bluesqrl plugins
+  $ app plugins
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v2.4.7/src/commands/plugins/index.ts)_
 
-## `bluesqrl plugins:install PLUGIN...`
+## `app plugins:install PLUGIN...`
 
 Installs a plugin into the CLI.
 
 ```
 USAGE
-  $ bluesqrl plugins:install PLUGIN...
+  $ app plugins:install PLUGIN...
 
 ARGUMENTS
   PLUGIN  Plugin to install.
@@ -150,23 +150,23 @@ DESCRIPTION
 
 
 ALIASES
-  $ bluesqrl plugins add
+  $ app plugins add
 
 EXAMPLES
-  $ bluesqrl plugins:install myplugin 
+  $ app plugins:install myplugin 
 
-  $ bluesqrl plugins:install https://github.com/someuser/someplugin
+  $ app plugins:install https://github.com/someuser/someplugin
 
-  $ bluesqrl plugins:install someuser/someplugin
+  $ app plugins:install someuser/someplugin
 ```
 
-## `bluesqrl plugins:inspect PLUGIN...`
+## `app plugins:inspect PLUGIN...`
 
 Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ bluesqrl plugins:inspect PLUGIN...
+  $ app plugins:inspect PLUGIN...
 
 ARGUMENTS
   PLUGIN  [default: .] Plugin to inspect.
@@ -182,16 +182,16 @@ DESCRIPTION
   Displays installation properties of a plugin.
 
 EXAMPLES
-  $ bluesqrl plugins:inspect myplugin
+  $ app plugins:inspect myplugin
 ```
 
-## `bluesqrl plugins:install PLUGIN...`
+## `app plugins:install PLUGIN...`
 
 Installs a plugin into the CLI.
 
 ```
 USAGE
-  $ bluesqrl plugins:install PLUGIN...
+  $ app plugins:install PLUGIN...
 
 ARGUMENTS
   PLUGIN  Plugin to install.
@@ -213,23 +213,23 @@ DESCRIPTION
 
 
 ALIASES
-  $ bluesqrl plugins add
+  $ app plugins add
 
 EXAMPLES
-  $ bluesqrl plugins:install myplugin 
+  $ app plugins:install myplugin 
 
-  $ bluesqrl plugins:install https://github.com/someuser/someplugin
+  $ app plugins:install https://github.com/someuser/someplugin
 
-  $ bluesqrl plugins:install someuser/someplugin
+  $ app plugins:install someuser/someplugin
 ```
 
-## `bluesqrl plugins:link PLUGIN`
+## `app plugins:link PLUGIN`
 
 Links a plugin into the CLI for development.
 
 ```
 USAGE
-  $ bluesqrl plugins:link PLUGIN
+  $ app plugins:link PLUGIN
 
 ARGUMENTS
   PATH  [default: .] path to plugin
@@ -247,16 +247,16 @@ DESCRIPTION
 
 
 EXAMPLES
-  $ bluesqrl plugins:link myplugin
+  $ app plugins:link myplugin
 ```
 
-## `bluesqrl plugins:uninstall PLUGIN...`
+## `app plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ bluesqrl plugins:uninstall PLUGIN...
+  $ app plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -269,17 +269,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ bluesqrl plugins unlink
-  $ bluesqrl plugins remove
+  $ app plugins unlink
+  $ app plugins remove
 ```
 
-## `bluesqrl plugins:uninstall PLUGIN...`
+## `app plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ bluesqrl plugins:uninstall PLUGIN...
+  $ app plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -292,17 +292,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ bluesqrl plugins unlink
-  $ bluesqrl plugins remove
+  $ app plugins unlink
+  $ app plugins remove
 ```
 
-## `bluesqrl plugins:uninstall PLUGIN...`
+## `app plugins:uninstall PLUGIN...`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ bluesqrl plugins:uninstall PLUGIN...
+  $ app plugins:uninstall PLUGIN...
 
 ARGUMENTS
   PLUGIN  plugin to uninstall
@@ -315,17 +315,17 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ bluesqrl plugins unlink
-  $ bluesqrl plugins remove
+  $ app plugins unlink
+  $ app plugins remove
 ```
 
-## `bluesqrl plugins update`
+## `app plugins update`
 
 Update installed plugins.
 
 ```
 USAGE
-  $ bluesqrl plugins update [-h] [-v]
+  $ app plugins update [-h] [-v]
 
 FLAGS
   -h, --help     Show CLI help.
