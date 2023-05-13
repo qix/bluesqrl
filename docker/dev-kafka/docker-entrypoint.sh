@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 _term() {
     echo "🚨 Termination signal received...";
@@ -21,34 +22,33 @@ echo "listener.security.protocol.map=CONTROLLER:PLAINTEXT,CLIENTS:PLAINTEXT,BROK
 echo "==> ✅ Enivronment variables applied.";
 
 
-echo "==> Setting up Kafka storage...";
-export suuid=$(./bin/kafka-storage.sh random-uuid);
-./bin/kafka-storage.sh format -t $suuid -c ./config/kraft/server.properties;
-echo "==> ✅ Kafka storage setup.";
+if [ -f /kafka-logs/meta.properties ]; then
+    echo "==> ✅ Kafka storage already exists.";
+else
+    echo "==> Setting up Kafka storage...";
+    export suuid=$(./bin/kafka-storage.sh random-uuid);
+    ./bin/kafka-storage.sh format -t $suuid -c ./config/kraft/server.properties;
+    echo "==> ✅ Kafka storage setup.";
+fi
 
 
 echo "==> Starting Kafka server...";
 ./bin/kafka-server-start.sh ./config/kraft/server.properties &
 child=$!
-echo "==> ✅ Kafka server started.";
+echo "==> Kafka server started...";
+./wait-for-it.sh $kafka_addr;
+echo "==> ✅ Kafka server running.";
 
-if [ -z $KRAFT_CREATE_TOPICS ]; then
-    echo "==> No topic requested for creation.";
-else
-    echo "==> Creating topics...";
-    ./wait-for-it.sh $kafka_addr;
+echo "==> Ensuring topics...";
 
-    pc=1
-    if [ $KRAFT_PARTITIONS_PER_TOPIC ]; then
-        pc=$KRAFT_PARTITIONS_PER_TOPIC
-    fi
+# @todo: Deal with already existing topics better
+for topic in inputEvents feedStatus; do
+    ./topics.sh --create --topic "$topic" \
+        --partitions "1"  --replication-factor 1 || true;
+done
 
-    for i in $(echo $KRAFT_CREATE_TOPICS | sed "s/,/ /g")
-    do
-        ./bin/kafka-topics.sh --create --topic "$i" --partitions "$pc" --replication-factor 1 --bootstrap-server $kafka_addr;
-    done
-    echo "==> ✅ Requested topics created.";
-fi
+./configs.sh --alter --topic feedStatus --add-config cleanup.policy=compact
 
+echo "==> ✅ Requested topics created.";
 
 wait "$child";

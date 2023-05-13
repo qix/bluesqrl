@@ -9,12 +9,9 @@ services:
       - "9093:9093"
     volumes:
       - kafka-data:/kafka-logs
-    environment:
-      - KRAFT_CREATE_TOPICS=inputEvents,feedStatus
-      - KRAFT_PARTITIONS_PER_TOPIC=1
   bluesqrl:
     image: us-east4-docker.pkg.dev/josh-personal-201806/docker-dev/bluesqrl:latest
-    restart: "no"
+    restart: always
     command: >
       ./bin/dev feed-to-kafka --kafka=kafka:9092
 
