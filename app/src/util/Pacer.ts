@@ -1,18 +1,13 @@
-
 export class Pacer {
+  private last = 0;
+  constructor(private intervalMs: number) {}
 
-    private last = 0;
-    constructor(private intervalMs: number) {
-
-
+  test() {
+    const now = Date.now();
+    if (now > this.last + this.intervalMs) {
+      this.last = now;
+      return true;
     }
-
-    test() {
-        const now = Date.now();
-        if (now > this.last + this.intervalMs) {
-            this.last = now;
-            return true;
-        }
-        return false;
-    }
+    return false;
+  }
 }
