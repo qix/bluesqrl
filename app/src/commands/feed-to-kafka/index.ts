@@ -9,28 +9,77 @@ import {
 } from '../../bluesky/lexicon/types/com/atproto/sync/subscribeRepos'
 import { getOpsByType } from '../../bluesky/getOpsByType'
 
+import { KafkaClient as Client, HighLevelProducer } from 'kafka-node';
+
+const kafkaHost = 'localhost:9092';
+
+
+class Pacer {
+
+  private last = 0;
+  constructor(private intervalMs: number) {
+
+
+  }
+
+  test() {
+    const now = Date.now();
+    if (now > this.last + this.intervalMs) {
+      this.last = now;
+      return true;
+    }
+    return false;
+  }
+}
 
 export default class FeedToKafka extends Command {
   static description = 'Write the BlueSky feed to a kafka instance'
 
 
-  /*
   static flags = {
-    from: Flags.string({char: 'f', description: 'Who is saying hello', required: true}),
+    kafka: Flags.string({
+      description: 'Kafka server', required: true,
+      default: 'localhost:9092'
+    }),
   }
-
-  static args = {
-    person: Args.string({description: 'Person to say hello to', required: true}),
-  }
-  */
 
   async getCursor() {
     // {cursor: ''}
     return {};
   }
   async run(): Promise<void> {
-    // const {args, flags} = await this.parse(Hello)
-    // this.log(`hello ${args.person} from ${flags.from}! (./src/commands/hello/index.ts)`)
+
+
+    let shouldExit = false;
+    let totalCommitted = 0;
+    const logPacer = new Pacer(15000);
+
+    process.on('SIGINT', function () {
+      console.log("Caught interrupt signal");
+      shouldExit = true;
+    });
+
+
+    const { flags } = await this.parse(FeedToKafka)
+
+    const kafkaClient = new Client({
+      kafkaHost: flags.kafka,
+      clientId: 'bluesky-feed'
+    });
+
+    const producer = new HighLevelProducer(kafkaClient, { requireAcks: 1 });
+
+    producer.on('error', function (err) {
+      console.log('Producer error', err);
+    });
+
+    console.log('Connecting to producer...')
+    await new Promise<void>((resolve, reject) => {
+      producer.on('ready', resolve);
+      // @todo: handle errors
+    })
+    console.log('Producer ready')
+
 
     const cursor = {}; // {cursor: ''}
 
@@ -53,6 +102,10 @@ export default class FeedToKafka extends Command {
 
     for await (const evt of sub) {
 
+      // @todo: Ideally this would be published in a transaction
+      const eventKafkaMessages: string[] = [];
+
+
       if (isCommit(evt)) {
         const ops = await getOpsByType(evt)
 
@@ -65,24 +118,59 @@ export default class FeedToKafka extends Command {
           ['delete-like', ops.likes.deletes],
           ['create-repost', ops.reposts.creates],
           ['delete-repost', ops.reposts.deletes],
-        ]) {
+        ] as Array<[string, any]>) {
           for (const event of events) {
-            console.log(eventName, JSON.stringify(event));
+
+
+            eventKafkaMessages.push(JSON.stringify(
+              {
+                v: 1,
+                eventName,
+                payload: event
+              }
+            ));
           }
         }
+
+
+        if (!eventKafkaMessages.length) {
+          continue;
+        }
+        const producerMessages = [
+          {
+            topic: 'inputEvents',
+            messages: eventKafkaMessages,
+          },
+          {
+            topic: 'feedStatus',
+            messages: [JSON.stringify({
+              cursor: evt.seq
+            })]
+          }
+        ];
+
+        await new Promise(resolve => {
+          setTimeout(resolve, 100)
+        })
+        producer.send(producerMessages, (err, data) => {
+          if (err) {
+            console.error('produceFailed', err);
+          } else {
+            totalCommitted += eventKafkaMessages.length;
+            if (logPacer.test()) {
+              console.log(`Committed ${totalCommitted} messages!`)
+            }
+          }
+        });
+
       }
 
-      try {
-        //await this.handleEvent(evt)
-      } catch (err) {
-        console.error('repo subscription could not handle message', err)
-      }
-
-      // update stored cursor every 20 events or so
-      if (isCommit(evt) && evt.seq % 20 === 0) {
-        console.log('SET CURSOR', evt.seq);
+      if (shouldExit) {
+        break;
       }
     }
+
+    // @todo: Close things
 
   }
 }

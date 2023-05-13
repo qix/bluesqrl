@@ -12,18 +12,12 @@ kafka_addr=localhost:9093;
 
 echo "==> Applying environment variables...";
 
+HOST_IP="$(hostname -i)"
 
-if [ -z $KRAFT_CONTAINER_HOST_NAME ]; then
-    echo "listeners=CONTROLLER://:19092,EXTERNAL://:9093" >> $properties_file;
-    echo "advertised.listeners=EXTERNAL://localhost:9093" >> $properties_file;
-    echo "inter.broker.listener.name=EXTERNAL" >> $properties_file;
-    echo "listener.security.protocol.map=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT" >> $properties_file;
-else
-    echo "listeners=CONTROLLER://:19092,INTERNAL://:9092,EXTERNAL://:9093" >> $properties_file;
-    echo "advertised.listeners=INTERNAL://${KRAFT_CONTAINER_HOST_NAME}:9092,EXTERNAL://localhost:9093" >> $properties_file;
-    echo "inter.broker.listener.name=EXTERNAL" >> $properties_file;
-    echo "listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT" >> $properties_file;
-fi
+echo "listeners=CONTROLLER://:19092,CLIENTS://:9092,BROKERS://:9093" >> $properties_file;
+echo "advertised.listeners=CLIENTS://${HOST_IP}:9092,BROKERS://${HOST_IP}:9093" >> $properties_file;
+echo "inter.broker.listener.name=BROKERS" >> $properties_file;
+echo "listener.security.protocol.map=CONTROLLER:PLAINTEXT,CLIENTS:PLAINTEXT,BROKERS:PLAINTEXT" >> $properties_file;
 echo "==> ✅ Enivronment variables applied.";
 
 

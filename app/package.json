@@ -17,19 +17,20 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
-    "@oclif/core": "^2",
-    "@oclif/plugin-help": "^5",
-    "@oclif/plugin-plugins": "^2.4.7",
-    "kafka-node": "^5.0.0",
     "@atproto/did-resolver": "^0.1.0",
     "@atproto/lexicon": "^0.1.0",
     "@atproto/repo": "^0.1.0",
     "@atproto/uri": "^0.0.2",
-    "@atproto/xrpc-server": "^0.2.0"
+    "@atproto/xrpc-server": "^0.2.0",
+    "@oclif/core": "^2",
+    "@oclif/plugin-help": "^5",
+    "@oclif/plugin-plugins": "^2.4.7",
+    "kafka-node": "^5.0.0"
   },
   "devDependencies": {
     "@oclif/test": "^2.3.17",
     "@types/chai": "^4",
+    "@types/express": "^4.17.17",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.18.26",
     "chai": "^4",
