@@ -1,6 +1,9 @@
 export class Pacer {
   private last = 0;
-  constructor(private intervalMs: number) {}
+  private intervalMs: number;
+  constructor(props: { intervalMs: number }) {
+    this.intervalMs = props.intervalMs;
+  }
 
   test() {
     const now = Date.now();

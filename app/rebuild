@@ -1,5 +1,5 @@
 #!/bin/bash
 set -xeo pipefail
 cd "$(dirname $0)"
-docker build -t us-east4-docker.pkg.dev/josh-personal-201806/docker-dev/bluesqrl:latest .
-docker push us-east4-docker.pkg.dev/josh-personal-201806/docker-dev/bluesqrl:latest
+docker build -t qixxiq/bluesqrl:latest .
+docker push qixxiq/bluesqrl:latest

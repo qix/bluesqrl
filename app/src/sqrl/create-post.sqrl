@@ -1,0 +1,1 @@
+LET UserText := jsonValue(EventPayload, "$.record.text");

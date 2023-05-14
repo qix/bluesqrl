@@ -22,6 +22,7 @@
     "@atproto/repo": "^0.1.0",
     "@atproto/uri": "^0.0.2",
     "@atproto/xrpc-server": "^0.2.0",
+    "@google-cloud/bigquery": "^6.2.0",
     "@oclif/core": "^2",
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.4.7",

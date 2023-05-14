@@ -172,7 +172,9 @@ export default class FeedToKafka extends Command {
     let totalCommitted = 0;
     let lastLag: number | null = null;
 
-    const logPacer = new Pacer(15000);
+    const logPacer = new Pacer({
+      intervalMs: 15000,
+    });
 
     process.on("SIGINT", function () {
       console.log("Caught interrupt signal");
@@ -252,18 +254,22 @@ export default class FeedToKafka extends Command {
         const transaction = await producer.transaction();
 
         try {
-          await transaction.send({
-            topic: "inputEvents",
-            messages: eventKafkaMessages.map((value) => ({ value })),
-          });
-          await transaction.send({
-            topic: "feedStatus",
-            messages: [
+          await transaction.sendBatch({
+            topicMessages: [
               {
-                key: "cursor",
-                value: JSON.stringify({
-                  cursor: evt.seq,
-                }),
+                topic: "inputEvents",
+                messages: eventKafkaMessages.map((value) => ({ value })),
+              },
+              {
+                topic: "feedStatus",
+                messages: [
+                  {
+                    key: "cursor",
+                    value: JSON.stringify({
+                      cursor: evt.seq,
+                    }),
+                  },
+                ],
               },
             ],
           });

@@ -42,7 +42,7 @@ echo "==> ✅ Kafka server running.";
 echo "==> Ensuring topics...";
 
 # @todo: Deal with already existing topics better
-for topic in inputEvents feedStatus; do
+for topic in inputEvents feedStatus bigQuery; do
     ./topics.sh --create --topic "$topic" \
         --partitions "1"  --replication-factor 1 || true;
 done

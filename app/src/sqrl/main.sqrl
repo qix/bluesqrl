@@ -1,0 +1,17 @@
+LET EventName := input();
+LET EventPayload := input();
+
+INCLUDE "create-post.sqrl" WHERE EventName="create-post";
+
+LET Author := jsonValue(EventPayload, "$.author");
+LET CountByAuthor := count(BY Author);
+
+# @todo WHERE EventName="create-post" (BUG!)
+LET PostCountByAuthorHour := count(BY Author LAST HOUR);
+
+bigqueryWrite("events", {
+    "EventName": EventName,
+    "EventPayload": jsonStringify(EventPayload),
+    "UserText": UserText,
+    "PostCountByAuthorHour": PostCountByAuthorHour,
+});
