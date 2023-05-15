@@ -4611,7 +4611,7 @@ node-gyp@^9.3.0:
     tar "^6.1.2"
     which "^2.0.2"
 
-node-nice@0.0.1, node-nice@^0.0.1:
+node-nice@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/node-nice/-/node-nice-0.0.1.tgz#0046f70b26afb0f8b9ee6816775885d4ccbb33cd"
   integrity sha512-bNoDGq5x5lL5wrieaZfSHcUxWwJCFi/PZalig+rkA1qy9H0SYqIiVANNWNmhncKxeRvwMvSoCWy4DQgP/GgQJA==
@@ -5174,7 +5174,7 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==
 
-prettier@^2.1.2, prettier@^2.8.8:
+prettier@^2.8.8:
   version "2.8.8"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
   integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
@@ -5858,27 +5858,21 @@ sqrl-common@^0.6.10:
   resolved "https://registry.yarnpkg.com/sqrl-common/-/sqrl-common-0.6.10.tgz#0afaf618bed655a73388b474eac8b13e6676bcac"
   integrity sha512-wpl1QOjWe54JXx3tyCR3rck18S7m251BaXLTeW2vYiLlHrL7xDOTzdCv2At5O0iI/ykj957YfdB8ujdMBdgxTQ==
 
-sqrl-jsonpath@^0.6.10:
+sqrl-jsonpath@../sqrl/packages/sqrl-jsonpath:
   version "0.6.10"
-  resolved "https://registry.yarnpkg.com/sqrl-jsonpath/-/sqrl-jsonpath-0.6.10.tgz#c5eec8f7ad4955c1eaf4343c151de0fbf44c2c84"
-  integrity sha512-/WUSijiwJdv2bYOwISiUlKUxZWSKcIXeVwK018pFxkIu85fjpCRXSKApxq18LjpLrbBiK4mqqLdMsljHk5j81g==
   dependencies:
     jsonpath "^1.1.1"
     sqrl "^0.6.10"
     sqrl-common "^0.6.10"
 
-sqrl-load-functions@^0.6.10:
+sqrl-load-functions@../sqrl/packages/sqrl-load-functions:
   version "0.6.10"
-  resolved "https://registry.yarnpkg.com/sqrl-load-functions/-/sqrl-load-functions-0.6.10.tgz#ba2e1e774bc8531212577ff5cc8d0a2650738e4b"
-  integrity sha512-cRHA23wQUsxQZqjsVb9gHnNYiB+eiy2DHZFn1Lf6wmBvZ2WMTv7BRhoPTVSsCY1hGK0CYk9tz/P0otUV6fbXOQ==
   dependencies:
     js-yaml "^3.13.1"
     sqrl "^0.6.10"
 
-sqrl-redis-functions@^0.6.10:
+sqrl-redis-functions@../sqrl/packages/sqrl-redis-functions:
   version "0.6.10"
-  resolved "https://registry.yarnpkg.com/sqrl-redis-functions/-/sqrl-redis-functions-0.6.10.tgz#33ade638a846ffd127620f2794e68e70f220e7ca"
-  integrity sha512-Rr2GHWILJjbuzjRWBTGQjPjE4KhquWkkecUSbl/mTcqQo7I53D2LcTJ11XuntirqzGu1TCxH7mp1lTl3xuXXKA==
   dependencies:
     bigint-buffer "^1.1.2"
     bluebird "^3.7.2"
@@ -5889,20 +5883,16 @@ sqrl-redis-functions@^0.6.10:
     sqrl "^0.6.10"
     sqrl-common "^0.6.10"
 
-sqrl-text-functions@^0.6.10:
+sqrl-text-functions@../sqrl/packages/sqrl-text-functions:
   version "0.6.10"
-  resolved "https://registry.yarnpkg.com/sqrl-text-functions/-/sqrl-text-functions-0.6.10.tgz#8606fe673640d3f0eea0fec30d357c6d63ce9b5d"
-  integrity sha512-n2ogT8ZrjDUjkxZ0PmCafNd8ccjMtZm48wdYjzYlIGnihc/rDW95nDT9hhq58mniAgZWqLW0VxxNo8CZz0wfXw==
   dependencies:
-    node-nice "0.0.1"
+    node-nice "^0.0.1"
     re2 "^1.15.8"
     simhash-js "^1.0.0"
     sqrl "^0.6.10"
 
-sqrl@^0.6.10:
+sqrl@../sqrl/packages/sqrl, sqrl@^0.6.10:
   version "0.6.10"
-  resolved "https://registry.yarnpkg.com/sqrl/-/sqrl-0.6.10.tgz#8861a7e52c401bb4722d23a2cc614073e12cd75c"
-  integrity sha512-R2bbTXpMzRoOHrIzseiU6uzuizw0s7d0oSeh3Mn4MzFCCFJWx8srMM2rbyA3xTEvZ5ypJn8roV2R7IY36qdEOw==
   dependencies:
     bigint-buffer "^1.1.2"
     bluebird "^3.7.2"
@@ -5914,7 +5904,6 @@ sqrl@^0.6.10:
     moment-timezone "^0.5.31"
     murmurhash3.js "https://github.com/qix/murmurHash3.js/releases/download/3.0.0-qix-0/murmurhash3.js-3.0.0-qix-0.tgz"
     node-nice "^0.0.1"
-    prettier "^2.1.2"
     sqrl-common "^0.6.10"
 
 ssri@^8.0.0, ssri@^8.0.1:

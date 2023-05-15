@@ -5,7 +5,7 @@ import { Flags } from "@oclif/core";
 // @todo: Get this from kafkajs?
 const FROM_EARLIEST = -2;
 
-export function kafkaConsumerFlags(defaultClientId: string) {
+export function kafkaConsumerFlags(defaultGroupId: string) {
   return {
     kafka: Flags.string({
       description: "Kafka server",
@@ -14,10 +14,19 @@ export function kafkaConsumerFlags(defaultClientId: string) {
     }),
     kafkaClientId: Flags.string({
       description: "Kafka clientId",
-      default: defaultClientId,
+      default: "bluesqrl-cli",
+    }),
+    kafkaGroupId: Flags.string({
+      description: "Kafka groupId",
+      default: defaultGroupId,
     }),
     restart: Flags.boolean({
       description: "Restart consumer from the beginning",
+      default: false,
+    }),
+    restartIfInvalid: Flags.boolean({
+      description:
+        "Restart consumer from the beginning if there is no offset set",
       default: false,
     }),
   };
@@ -35,11 +44,15 @@ export function createKafkaClient(flags: {
 export async function runConsumer(props: {
   kafka: Kafka;
   topic: string;
-  restart?: boolean;
+  flags: {
+    restart?: boolean;
+    restartIfInvalid?: boolean;
+    kafkaGroupId: string;
+  };
   eachMessage?: EachMessageHandler;
   eachBatch?: EachBatchHandler;
 }) {
-  const { topic, kafka, eachBatch, eachMessage, restart } = props;
+  const { topic, kafka, eachBatch, eachMessage, flags } = props;
 
   const interrupted = new DeferredPromise<void>();
   process.on("SIGINT", function () {
@@ -48,13 +61,13 @@ export async function runConsumer(props: {
   });
 
   const admin = kafka.admin();
-  const consumer = kafka.consumer({ groupId: "process-feed" });
+  const consumer = kafka.consumer({ groupId: flags.kafkaGroupId });
 
   console.log("Connecting consumer...");
   await consumer.connect();
   await consumer.subscribe({
     topic,
-    fromBeginning: true,
+    fromBeginning: flags.restart || flags.restartIfInvalid,
   });
 
   // Fetch offsets before starting consumer, so we can reset if we need to
@@ -66,7 +79,7 @@ export async function runConsumer(props: {
   });
 
   // @todo: Does this actually seek to the start? after starting it?
-  if (restart) {
+  if (flags.restart) {
     console.log("Resetting consumer...");
     offsets.forEach(({ partition }) => {
       consumer.seek({

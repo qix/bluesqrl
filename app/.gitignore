@@ -1,6 +1,7 @@
 *-debug.log
 *-error.log
 /.nyc_output
+/build
 /dist
 /lib
 /package-lock.json

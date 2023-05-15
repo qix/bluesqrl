@@ -24,6 +24,14 @@ services:
     restart: always
     command: >
       ./bin/dev bigquery-insert --kafka=kafka:9092
+    volumes:
+      - google-creds:/google-creds
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/google-creds/application_default_credentials.json
 
 volumes:
   kafka-data:
+  google-creds:
+    # docker volume create google-creds --opt type=none --opt device=~/.config/bluesqrl/gcloud --opt o=bind
+    external: true
+

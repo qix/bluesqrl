@@ -154,7 +154,7 @@ export default class ProcessFeed extends Command {
     await runConsumer({
       kafka: this.kafka,
       topic: "inputEvents",
-      restart: flags.resart,
+      flags: flags,
       async eachMessage({ message }) {
         invariant(message.value);
         const data = JSON.parse(message.value.toString("utf-8"));

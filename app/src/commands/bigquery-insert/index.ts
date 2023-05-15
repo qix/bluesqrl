@@ -11,7 +11,14 @@ import { Pacer } from "../../util/Pacer";
 export default class BigQueryInsert extends Command {
   static description = "Stream inserts into BigQuery";
 
-  static flags = kafkaConsumerFlags("bigquery-insert");
+  static flags = {
+    ...kafkaConsumerFlags("bigquery-insert"),
+
+    tableId: Flags.string({
+      description: "BigQuery table id",
+      default: "events-dev",
+    }),
+  };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(BigQueryInsert);
@@ -20,7 +27,7 @@ export default class BigQueryInsert extends Command {
     const kafka = createKafkaClient(flags);
 
     const datasetId = "bluesky";
-    const tableId = "events";
+    const tableId = flags.tableId;
 
     // Retrieve current table metadata
     const table = bigquery.dataset(datasetId).table(tableId);
@@ -51,7 +58,7 @@ export default class BigQueryInsert extends Command {
     await runConsumer({
       kafka: kafka,
       topic: "bigQuery",
-      restart: flags.resart,
+      flags: flags,
       async eachBatch({ batch }) {
         const inserts = batch.messages.map((message) => {
           if (message.value === null) {
@@ -63,10 +70,7 @@ export default class BigQueryInsert extends Command {
           }
           const parsed = JSON.parse(message.value.toString());
 
-          return {
-            ...parsed,
-            EventPayload: JSON.stringify(parsed.EventPayload),
-          };
+          return parsed;
         });
 
         await bigquery.dataset("bluesky").table("events").insert(inserts);
