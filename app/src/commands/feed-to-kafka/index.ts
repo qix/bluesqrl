@@ -3,7 +3,6 @@ import { Args, Command, Config, Flags } from "@oclif/core";
 import { Subscription } from "@atproto/xrpc-server";
 import { ids, lexicons } from "../../bluesky/lexicon/lexicons";
 import {
-  Commit,
   OutputSchema as RepoEvent,
   isCommit,
 } from "../../bluesky/lexicon/types/com/atproto/sync/subscribeRepos";
@@ -103,36 +102,6 @@ async function consumeAll(
   await finishedPromise.promise;
   await consumer.disconnect();
 }
-
-/*
-run().catch(e => console.error(`[example/consumer] ${e.message}`, e))
-
-const errorTypes = ['unhandledRejection', 'uncaughtException']
-const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2']
-
-errorTypes.map(type => {
-  process.on(type, async e => {
-    try {
-      console.log(`process.on ${type}`)
-      console.error(e)
-      await consumer.disconnect()
-      process.exit(0)
-    } catch (_) {
-      process.exit(1)
-    }
-  })
-})
-
-signalTraps.map(type => {
-  process.once(type, async () => {
-    try {
-      await consumer.disconnect()
-    } finally {
-      process.kill(process.pid, type)
-    }
-  })
-})
-*/
 
 export default class FeedToKafka extends Command {
   static description = "Write the BlueSky feed to a kafka instance";
@@ -241,6 +210,7 @@ export default class FeedToKafka extends Command {
               JSON.stringify({
                 v: 1,
                 eventName,
+                timestamp: new Date().toISOString(),
                 payload: event,
               })
             );

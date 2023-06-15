@@ -17,16 +17,19 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
+    "@atproto/api": "^0.3.12",
     "@atproto/did-resolver": "^0.1.0",
     "@atproto/lexicon": "^0.1.0",
     "@atproto/repo": "^0.1.0",
     "@atproto/uri": "^0.0.2",
     "@atproto/xrpc-server": "^0.2.0",
+    "@aws-sdk/client-s3": "^3.352.0",
     "@google-cloud/bigquery": "^6.2.0",
     "@oclif/core": "^2",
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.4.7",
     "kafkajs": "^2.2.4",
+    "re2": "^1.19.0",
     "sqrl": "../sqrl/packages/sqrl",
     "sqrl-jsonpath": "../sqrl/packages/sqrl-jsonpath",
     "sqrl-load-functions": "../sqrl/packages/sqrl-load-functions",
@@ -56,16 +59,7 @@
     "bin": "app",
     "dirname": "app",
     "commands": "./dist/commands",
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
-    ],
-    "topicSeparator": " ",
-    "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
-      }
-    }
+    "plugins": []
   },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
