@@ -45,7 +45,6 @@ export default class ProcessFeed extends Command {
       async eachMessage({ message }) {
         invariant(message.value);
         const data = JSON.parse(message.value.toString("utf-8"));
-        console.log(JSON.stringify(data));
 
         const ctx = createSimpleContext();
         const execution = await executable.execute(ctx, {

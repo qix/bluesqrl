@@ -1,23 +1,39 @@
-import { SqliteCacheAdapter } from "cache-manager-better-sqlite3";
-import { Cache } from "cache-manager";
+import sqlite = require("better-sqlite3");
 
-let cachePromise: Promise<Cache<SqliteCacheAdapter>>;
+class Cache {
+  db: any;
+
+  constructor() {
+    this.db = sqlite("/tmp/bluesqrl", {});
+    this.db.exec(
+      "CREATE TABLE IF NOT EXISTS cache (key VARCHAR(255) NOT NULL PRIMARY KEY,  value TEXT);"
+    );
+  }
+
+  get(key: string): string | null {
+    const stmt = this.db.prepare("SELECT value FROM cache WHERE key = ?");
+    const row = stmt.get(key);
+    return row ? row.value : null;
+  }
+
+  set(key: string, value: string, ttlMs: number): void {
+    // @todo: ttlrMs
+
+    const stmt = this.db.prepare(
+      "INSERT OR REPLACE INTO cache (key, value) VALUES (?, ?)"
+    );
+    const info = stmt.run(key, value);
+    return info;
+  }
+}
+
+const cache = new Cache();
 
 /**
  * Create a cache, workaround for ESM in cache-manager
  */
-export function getCache(): Promise<Cache<SqliteCacheAdapter>> {
-  if (!cachePromise) {
-    console.log("STARTING IMPORT");
-    cachePromise = import("./cacheBuilder").then(({ buildNewCache }) => {
-      console.log("import done");
-      return buildNewCache().then((cache) => {
-        console.log("cache build done");
-        return cache;
-      });
-    });
-  }
-  return cachePromise;
+export async function getCache(): Promise<Cache> {
+  return cache;
 }
 
 export const CacheKeys = {

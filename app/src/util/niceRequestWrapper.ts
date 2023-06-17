@@ -7,7 +7,7 @@ import { getCache, CacheKeys } from "./cache";
 
 const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
 
-interface RequestConfig<I, O> {
+export interface RequestConfig<I, O> {
   name: string;
   maxConcurrent: number;
   initialRetryMs: number;
@@ -87,12 +87,10 @@ export function niceRequestWrapper<I, O>(
       ? CacheKeys.requestWrapper(props.name, inputCacheKey)
       : null;
 
-    console.log("TRY CACHE");
     if (cacheKey) {
       const cache = await getCache();
-      const cached = await cache.get<string>(cacheKey);
-      if (typeof cached !== "undefined") {
-        console.log("GOT FROM CACHE => ", props.deserialize(cached));
+      const cached = await cache.get(cacheKey);
+      if (cached !== null) {
         return props.deserialize(cached);
       }
     }
@@ -113,6 +111,7 @@ export function niceRequestWrapper<I, O>(
             const cache = await getCache();
             cache.set(cacheKey, props.serialize(result), props.cacheTtlMs);
           }
+          return result;
         } catch (err) {
           if (!(err instanceof Error) || !props.shouldRetryError(err)) {
             throw err;
