@@ -28,7 +28,14 @@ services:
       - google-creds:/google-creds
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/google-creds/application_default_credentials.json
-
+  write-s3:
+      image: qixxiq/bluesqrl:latest
+      restart: always
+      command: >
+        ./bin/dev write-feed-s3  --kafka=kafka:9092 --bucket sqrl-bluesky-demo --key-prefix 'dev/v0' --region us-east-1
+      environment:
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 volumes:
   kafka-data:
   google-creds:

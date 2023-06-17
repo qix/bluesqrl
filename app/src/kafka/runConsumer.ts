@@ -70,23 +70,28 @@ export async function runConsumer(props: {
     fromBeginning: flags.restart || flags.restartIfInvalid,
   });
 
-  // Fetch offsets before starting consumer, so we can reset if we need to
-  const offsets = await admin.fetchTopicOffsets("inputEvents");
-
-  consumer.run({
-    eachMessage,
-    eachBatch,
-  });
-
-  // @todo: Does this actually seek to the start? after starting it?
   if (flags.restart) {
+    /* For some reason we can only seek after starting the consumer,
+     * but assume that it immediately seeks
+     * @todo: Check this assumption
+     */
+    const offsets = await admin.fetchTopicOffsets(topic);
     console.log("Resetting consumer...");
+    consumer.run({
+      eachMessage,
+      eachBatch,
+    });
     offsets.forEach(({ partition }) => {
       consumer.seek({
         topic,
         partition,
         offset: FROM_EARLIEST.toString(),
       });
+    });
+  } else {
+    consumer.run({
+      eachMessage,
+      eachBatch,
     });
   }
 

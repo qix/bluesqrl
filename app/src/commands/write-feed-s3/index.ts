@@ -12,17 +12,18 @@ import { Pacer } from "../../util/Pacer";
 import { compileSqrl } from "../../processor/compileSqrl";
 import { Manipulator } from "../../processor/Manipulator";
 import { AtUri } from "@atproto/uri";
-import { resolveDid } from "../../sqrl-functions/resolveDid";
+import { resolveDid, resolveDidSlow } from "../../sqrl-functions/resolveDid";
 
 import { promisify } from "util";
 import { gzip } from "zlib";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Trace } from "../../util/Trace";
 
 const gzipAsync = promisify(gzip);
 
 const PLC_REGEX = /^did:plc:[a-z0-9]{24}$/;
 
-async function resolveDids(values: string[]) {
+async function resolveDids(trc: Trace, values: string[]) {
   const dids = new Set<string>();
   for (const value of values) {
     if (PLC_REGEX.test(value)) {
@@ -38,7 +39,8 @@ async function resolveDids(values: string[]) {
   const didMap: { [did: string]: string } = {};
   await Promise.all(
     Array.from(dids).map((did) => {
-      return resolveDid(did).then((resolved) => {
+      // @note: Use the slow version that retries more times
+      return resolveDidSlow(trc, did).then((resolved) => {
         didMap[did] = resolved;
       });
     })
@@ -78,7 +80,7 @@ class S3Streamer {
       new PutObjectCommand({
         Bucket: this.bucket,
         Body: compressed,
-        Key: `${this.keyPrefix}/${timestamp}.js`,
+        Key: `${this.keyPrefix}/${timestamp}.json`,
         ContentType: "text/javascript",
         ContentEncoding: "gzip",
       })
@@ -157,39 +159,67 @@ export default class WriteFeedS3 extends Command {
     });
 
     let lastTimestamp: string | null = null;
+    let concurrent = 0;
     await runConsumer({
       kafka: this.kafka,
       topic: "inputEvents",
       flags: flags,
-      async eachMessage({ message }) {
-        invariant(message.value);
-        const data = JSON.parse(message.value.toString("utf-8"));
-        const createdAt = data.payload?.record?.createdAt || lastTimestamp;
-        if (typeof createdAt !== "string") {
-          console.error("Skipping message without timestamp");
-          return;
-        }
-        lastTimestamp = createdAt;
+      async eachBatch({ batch }) {
+        const trc = new Trace();
 
-        const resolvedDids = await resolveDids(
-          [
-            data.payload?.reply?.root?.uri,
-            data.payload?.reply?.parent?.uri,
-            data.payload?.record?.subject?.uri,
-            data.payload?.uri,
-            data.payload?.author,
-          ].filter((v) => v)
+        /**
+         * First fill in missing timestamps, and filter out where we cant
+         */
+        const messages: Array<{
+          [key: string]: any;
+          timestamp: string;
+        }> = batch.messages
+          .map((message) => {
+            invariant(message.value);
+            const data = JSON.parse(message.value.toString("utf-8"));
+
+            // @todo: Now that we're saving the timestamp we can remove this eventually
+            lastTimestamp =
+              data.timestamp ||
+              new Date(parseInt(message.timestamp, 10)).toISOString();
+
+            return {
+              ...data,
+              timestamp: lastTimestamp,
+            };
+          })
+          .filter((v) => typeof v.timestamp === "string")
+          .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
+        const inserts = await Promise.all(
+          messages.map(async (data) => {
+            const resolvedDids = await resolveDids(
+              trc,
+              [
+                data.payload?.reply?.root?.uri,
+                data.payload?.reply?.parent?.uri,
+                data.payload?.record?.subject?.uri,
+                data.payload?.uri,
+                data.payload?.author,
+              ].filter((v) => v)
+            );
+
+            return {
+              ...data,
+              resolvedDids,
+            };
+          })
         );
 
-        await streamer.addEvent(new Date(createdAt), {
-          ...data,
-          resolvedDids,
-        });
+        for (const data of inserts) {
+          await streamer.addEvent(new Date(data.timestamp), data);
+          totalProcessed += 1;
+        }
 
-        totalProcessed += 1;
+        const last = inserts[inserts.length - 1];
         if (pacer.test()) {
           console.log(
-            `Processed ${totalProcessed} messages, last at ${createdAt}`
+            `Processed ${totalProcessed} messages, last at ${last.timestamp}, ${batch.messages.length} per batch`
           );
         }
       },
