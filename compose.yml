@@ -2,6 +2,9 @@ version: "3.8"
 
 services:
   kafka:
+    # SQRL was initially designed to run off a queue, and so here we set up an extremely primitive
+    # single-node kafka cluster. It is possible to rewrite pieces to use a cloud kafka service
+    # instead.
     image: qixxiq/bluesqrl-kafka:latest
     restart: always
     ports:
@@ -10,16 +13,25 @@ services:
     volumes:
       - kafka-data:/kafka-logs
   bluesqrl:
+    # This process reads from the Bluesky feed, and writes the raw incoming data to kafka.
     image: qixxiq/bluesqrl:latest
     restart: always
     command: >
       ./bin/dev feed-to-kafka --kafka=kafka:9092
+    depends_on:
+      - kafka
   process-feed:
+    # This process reads the raw feed from Kafka, and actually executes the SQRL code on it with
+    # many output kafka topics
     image: qixxiq/bluesqrl:latest
     restart: always
     command: >
       ./bin/dev process-feed --kafka=kafka:9092
+    depends_on:
+      - kafka
   bigquery-insert:
+    # This reads the bigquery output kafka topic, and streams the data into a BigQuery table.
+    # The current setup requires environment Google credentials which are uploaded via a volume.
     image: qixxiq/bluesqrl:latest
     restart: always
     command: >
@@ -28,14 +40,23 @@ services:
       - google-creds:/google-creds
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/google-creds/application_default_credentials.json
+    depends_on:
+      - kafka
   write-s3:
-      image: qixxiq/bluesqrl:latest
-      restart: always
-      command: >
-        ./bin/dev write-feed-s3  --kafka=kafka:9092 --bucket sqrl-bluesky-demo --key-prefix 'dev/v0' --region us-east-1
-      environment:
-        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    # This service is not enabled by default, and is responsible for uploading the data files used
+    # by the websqrl demo interface. It's included as an example of how that data is created, so
+    # that it can easily be replicated for other services.
+    image: qixxiq/bluesqrl:latest
+    restart: always
+    command: >
+      ./bin/dev write-feed-s3  --kafka=kafka:9092 --bucket sqrl-bluesky-demo --key-prefix 'dev/v0' --region us-east-1
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      - kafka
+    profiles:
+      - upload-s3
 volumes:
   kafka-data:
   google-creds:

@@ -1,10 +1,11 @@
 import sqlite = require("better-sqlite3");
+import { SQLITE_CACHE_PATH } from "./env";
 
 class Cache {
   db: any;
 
   constructor() {
-    this.db = sqlite("/tmp/bluesqrl", {});
+    this.db = sqlite(SQLITE_CACHE_PATH, {});
     this.db.exec(
       "CREATE TABLE IF NOT EXISTS cache (key VARCHAR(255) NOT NULL PRIMARY KEY,  value TEXT);"
     );

@@ -1,4 +1,4 @@
-import { Sema } from "async-sema";
+import { RateLimit, Sema } from "async-sema";
 import { nowMonotonicMs } from "./nowMonotonic";
 import { delayMs } from "./delayMs";
 import { Pacer } from "./Pacer";
@@ -18,6 +18,8 @@ export interface RequestConfig<I, O> {
   cacheKey: (input: I) => string | null;
   deserialize: (serialized: string) => O;
   serialize: (output: O) => string;
+
+  rateLimiter: () => Promise<void> | null;
 
   // Stop retrying after this total timeout
   timeoutMs: number;
@@ -41,6 +43,7 @@ const defaultRequestConfig = {
   serialize: () => {
     throw new Error("serialize() not implemented");
   },
+  rateLimiter: null,
 };
 const slowRequestConfig = {
   ...defaultRequestConfig,
@@ -48,14 +51,19 @@ const slowRequestConfig = {
   initialRetryMs: 50,
 };
 
+// Service has a rate limit of 10,000 per 5 minutes, reduced to 30 a second
+const resolveDidRateLimit = RateLimit(30, { timeUnit: 1 * 1000 });
+
 export const niceRequestConfig = {
   resolveDid: {
     name: "resolveDid",
     ...defaultRequestConfig,
+    rateLimiter: resolveDidRateLimit,
   },
   resolveDidSlow: {
     name: "resolveDidSlow",
     ...slowRequestConfig,
+    rateLimiter: resolveDidRateLimit,
   },
 };
 
@@ -104,6 +112,11 @@ export function niceRequestWrapper<I, O>(
       let nextWait = props.initialRetryMs;
       while (true) {
         try {
+          // @todo: This should be moved somewhere smarter
+          if (props.rateLimiter) {
+            await props.rateLimiter();
+          }
+
           const result = await callback(trc, input);
 
           if (cacheKey) {
@@ -130,7 +143,7 @@ export function niceRequestWrapper<I, O>(
           if (nowMs + waitMs > endMs) {
             // If we're out of time, throw the error
             trc.warn(
-              `Request retry timeout out after ${requestRetryCount} attempts`
+              `Request retry timeout out after ${requestRetryCount} attempts: ${err.toString()}`
             );
             throw err;
           }
@@ -142,6 +155,7 @@ export function niceRequestWrapper<I, O>(
           }
 
           // Otherwise wait, bump the retry and retry
+          // @todo: Wait until the specific time (and check interaction with rate limit)
           await delayMs(waitMs);
           nextWait = nextWait * props.backoffMultiply;
         }

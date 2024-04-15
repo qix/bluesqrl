@@ -14,7 +14,7 @@ const didResolver = new DidResolver(
   didCache
 );
 
-const requestConfigOverride: Partial<RequestConfig<string, string>> = {
+const requestConfigOverride: Partial<RequestConfig<string, string | null>> = {
   shouldRetryError(err: Error) {
     if ((err as AxiosError).isAxiosError) {
       const axiosError = err as AxiosError;
@@ -23,6 +23,7 @@ const requestConfigOverride: Partial<RequestConfig<string, string>> = {
       if (status && status >= 500 && status < 600) {
         return true;
       } else if (status === 429) {
+        return true;
       } else if (axiosError.code === "ECONNABORTED") {
         return true;
       }
@@ -40,21 +41,33 @@ const requestConfigOverride: Partial<RequestConfig<string, string>> = {
   cacheKey(did: string) {
     return did;
   },
-  serialize(username: string) {
-    return username;
+  serialize(result: string | null) {
+    return JSON.stringify(result);
   },
-  deserialize(username: string) {
-    return username;
+  deserialize(serialized: string) {
+    // @todo: deal with old-non-json entries
+    if (serialized.startsWith('"') || serialized === "null") {
+      return JSON.parse(serialized);
+    } else {
+      return serialized;
+    }
   },
 };
 
 async function unwrappedResolveDid(trc: Trace, did: string) {
   const resolved = await didResolver.resolveDid(did);
 
+  // did not found
+  if (resolved === null) {
+    return null;
+  }
+
   invariant(
     resolved?.alsoKnownAs?.length,
-    "Could not resolve did to a username"
+    "Could not resolve did to a username: %s",
+    did
   );
+
   const [url] = resolved.alsoKnownAs;
   invariant(url.startsWith("at://"), "Expected url to start with at://");
   return url.substring("at://".length);

@@ -36,7 +36,7 @@ async function resolveDids(trc: Trace, values: string[]) {
     }
   }
 
-  const didMap: { [did: string]: string } = {};
+  const didMap: { [did: string]: string | null } = {};
   await Promise.all(
     Array.from(dids).map((did) => {
       // @note: Use the slow version that retries more times
@@ -50,7 +50,7 @@ async function resolveDids(trc: Trace, values: string[]) {
 
 function minuteString(date: Date) {
   const str = date.toISOString();
-  return str.substring(0, "0000-00-00Y00:00".length);
+  return str.substring(0, "0000-00-00Y00:0".length);
 }
 
 class S3Streamer {
@@ -164,7 +164,7 @@ export default class WriteFeedS3 extends Command {
       kafka: this.kafka,
       topic: "inputEvents",
       flags: flags,
-      async eachBatch({ batch }) {
+      async eachBatch({ batch, heartbeat }) {
         const trc = new Trace();
 
         /**
@@ -203,6 +203,7 @@ export default class WriteFeedS3 extends Command {
                 data.payload?.author,
               ].filter((v) => v)
             );
+            await heartbeat();
 
             return {
               ...data,
@@ -213,6 +214,7 @@ export default class WriteFeedS3 extends Command {
 
         for (const data of inserts) {
           await streamer.addEvent(new Date(data.timestamp), data);
+          await heartbeat();
           totalProcessed += 1;
         }
 
